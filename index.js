@@ -4,6 +4,8 @@ import { initRoutes } from "./routes/routes.js";
 
 import "./config/db.js";
 
+const PORT = 3050;
+
 const app = express();
 
 app.use(cors());
@@ -14,7 +16,6 @@ initRoutes(app);
 
 app.use("/", express.static("./client/build"));
 
-const port = 3050;
-app.listen(port, () => {});
+app.listen(PORT, () => {});
 
 export { app };

@@ -1,7 +1,9 @@
 import { userRepository } from "../repositories/userRepository.js";
 
 class UserService {
-  // TODO: Implement methods to work with user
+  createUser(user) {
+    return userRepository.create(user);
+  }
 
   search(search) {
     const item = userRepository.getOne(search);

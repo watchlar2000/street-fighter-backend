@@ -3,8 +3,8 @@ const responseMiddleware = (req, res, next) => {
     res.status(statusCode).json(data);
   };
 
-  if (res.err) {
-    const data = { error: true, message: res.err };
+  if (res.error) {
+    const data = { error: true, message: res.error };
     sendResponse(400, data);
   } else if (res.data) {
     sendResponse(undefined, res.data);

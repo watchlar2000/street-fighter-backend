@@ -11,20 +11,9 @@ const router = Router();
 router.get(
   "/",
   async (req, res, next) => {
-    try {
-      const usersList = await userService.getUsersList();
-
-      if (usersList === null) {
-        const errorMessage = "No users found in the database";
-        throw Error(errorMessage);
-      }
-
-      res.data = { users: usersList };
-    } catch (error) {
-      res.error = error?.message ?? error;
-    } finally {
-      next();
-    }
+    const usersList = await userService.getUsersList();
+    res.data = usersList;
+    next();
   },
   responseMiddleware,
 );
@@ -34,17 +23,10 @@ router.get(
   async (req, res, next) => {
     try {
       const { id: userId } = req.params;
-
       const user = await userService.getUserById(userId);
-
-      if (user === null) {
-        const errorMessage = "No user with such ID found in the database";
-        throw Error(errorMessage);
-      }
-
       res.data = user;
-    } catch (error) {
-      res.error = error?.message ?? error;
+    } catch ({ message }) {
+      res.error = message;
     } finally {
       next();
     }
@@ -57,18 +39,24 @@ router.put(
   updateUserValid,
   async (req, res, next) => {
     try {
-      const { id: userId } = req.params;
+      const resError = res.error;
 
-      const user = await userService.updateUserById(userId, res.data);
-
-      if (user === null) {
-        const errorMessage = "Something went wrong updating the user";
-        throw Error(errorMessage);
+      if (resError) {
+        throw new Error(resError);
       }
 
-      res.data = user;
-    } catch (error) {
-      res.error = error?.message ?? error;
+      const { id: userId } = req.params;
+      await userService.getUserById(userId);
+
+      const { data: userUpdatedData } = res;
+      const updatedUser = await userService.updateUserById(
+        userId,
+        userUpdatedData,
+      );
+
+      res.data = updatedUser;
+    } catch ({ message }) {
+      res.error = message;
     } finally {
       next();
     }
@@ -81,17 +69,13 @@ router.delete(
   async (req, res, next) => {
     try {
       const { id: userId } = req.params;
+      await userService.getUserById(userId);
 
-      const user = await userService.deleteUserById(userId);
+      const deletedUser = await userService.deleteUserById(userId);
 
-      if (user === null) {
-        const errorMessage = "Something went wrong deleting the user";
-        throw Error(errorMessage);
-      }
-
-      res.data = user;
-    } catch (error) {
-      res.error = error?.message ?? error;
+      res.data = deletedUser;
+    } catch ({ message }) {
+      res.error = message;
     } finally {
       next();
     }
@@ -104,29 +88,29 @@ router.post(
   createUserValid,
   async (req, res, next) => {
     try {
-      const isResError = res.error;
-      if (isResError) throw Error(isResError);
+      const resError = res.error;
+
+      if (resError) {
+        throw new Error(resError);
+      }
 
       const { email, phoneNumber } = req.body;
-
       const isEmailExisting = await userService.search({ email });
 
       if (isEmailExisting) {
-        const errorMessage = "User with this email is already existing";
-        throw Error(errorMessage);
+        throw new Error("User with this email is already existing");
       }
 
       const isPhoneNumberExisting = await userService.search({ phoneNumber });
 
       if (isPhoneNumberExisting) {
-        const errorMessage = "User with this phone number is already existing";
-        throw Error(errorMessage);
+        throw new Error("User with this phone number is already existing");
       }
 
       const createdUser = await userService.createUser(req.body);
       res.data = createdUser;
-    } catch (error) {
-      res.error = error?.message ?? error;
+    } catch ({ message }) {
+      res.error = message;
     } finally {
       next();
     }

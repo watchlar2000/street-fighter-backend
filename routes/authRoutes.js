@@ -11,8 +11,7 @@ router.post(
       const { email, password } = req.body;
 
       if (!email || !password) {
-        const errorMessage = "Missing required fields";
-        throw Error(errorMessage);
+        throw new Error("Missing required fields");
       }
 
       const user = await authService.login({ email });
@@ -20,14 +19,13 @@ router.post(
       const isPasswordCorrect = user.password === password;
 
       if (!isPasswordCorrect) {
-        const errorMessage = "Wrong password";
-        throw Error(errorMessage);
+        throw new Error("Wrong password");
       }
 
-      const data = { message: "User has been logged in succesfully" };
+      const data = user;
       res.data = data;
-    } catch (error) {
-      res.error = error?.message ?? error;
+    } catch ({ message }) {
+      res.error = message;
     } finally {
       next();
     }

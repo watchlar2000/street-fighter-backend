@@ -27,7 +27,7 @@ const isObjEmpty = (obj) => {
   return true;
 };
 
-const getNonExistingFields = (body) => {
+const getNonExistingFields = (body, entity) => {
   return Object.keys(body).filter(
     (field) => !Object.keys(entity).includes(field),
   );
@@ -54,12 +54,56 @@ const hasAllowedDomain = (email) => {
   return email.endsWith(allowedDomain);
 };
 
+const verifyFighterPower = (power) => {
+  if (power >= 1 && power <= 100) {
+    return true;
+  }
+
+  return false;
+};
+
+const verifyFighterDefense = (defense) => {
+  if (defense >= 1 && defense <= 10) {
+    return true;
+  }
+
+  return false;
+};
+
+const verifyFighterHealth = (health) => {
+  if (health >= 80 && health <= 120) {
+    return true;
+  }
+
+  return false;
+};
+
+const setFighterHealth = (health) => {
+  if (health === undefined) {
+    return "100";
+  }
+
+  return health;
+};
+
+const responseHandler = (response) => {
+  if (!response) {
+    return null;
+  }
+  return response;
+};
+
 export {
   getDefinedFields,
   getNonExistingFields,
   hasAllowedDomain,
   hasNoEmptyStringValues,
   isObjEmpty,
+  responseHandler,
+  setFighterHealth,
+  verifyFighterDefense,
+  verifyFighterHealth,
+  verifyFighterPower,
   verifyPassword,
   verifyPhoneNumber,
 };

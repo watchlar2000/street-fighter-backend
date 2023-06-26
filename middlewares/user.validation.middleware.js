@@ -22,48 +22,42 @@ const createUserValid = (req, res, next) => {
 
   try {
     if (req.body.id) {
-      const errorMessage = "ID field should not be present in the body";
-      throw Error(errorMessage);
+      throw new Error("ID field should not be present in the body");
     }
 
     const isValidBody = hasNoEmptyStringValues(userBody);
 
     if (!Object.keys(req.body).length || !isValidBody) {
-      const errorMessage = "Missing required fields";
-      throw Error(errorMessage);
+      const error =
+        "Missing required fields. The required fields are: firstName, lastName, email, phoneNumber, and password";
+      throw new Error(error);
     }
 
     const nonExistingFields = getNonExistingFields(req.body, USER);
 
     if (nonExistingFields.length) {
-      const errorMessage = "Extra fields are not allowed";
-      throw Error(errorMessage);
+      throw new Error("Extra fields are not allowed");
     }
 
     const isValidEmail = hasAllowedDomain(userBody.email ?? "");
 
     if (!isValidEmail) {
-      const errorMessage =
-        "Email is not valid and should end with '@gmail.com'";
-      throw Error(errorMessage);
+      throw new Error("Email is not valid and should end with '@gmail.com'");
     }
 
     const isValidPhone = verifyPhoneNumber(phoneNumber);
 
     if (!isValidPhone) {
-      const errorMessage =
-        "Phone number is not valid and should start with +380";
-      throw Error(errorMessage);
+      throw new Error("Phone number is not valid and should start with +380");
     }
 
     const isValidPassword = verifyPassword(password);
 
     if (!isValidPassword) {
-      const errorMessage = "Password must contain of min 3 symbols";
-      throw Error(errorMessage);
+      throw new Error("Password must contain of min 3 symbols");
     }
-  } catch (error) {
-    res.error = error?.message ?? error;
+  } catch ({ message }) {
+    res.error = message;
   } finally {
     next();
   }
@@ -71,19 +65,7 @@ const createUserValid = (req, res, next) => {
 
 const updateUserValid = (req, res, next) => {
   try {
-    const { id: userId } = req.params;
-
-    if (!userId) {
-      const errorMessage = "Please specidy an ID of the user";
-      throw Error(errorMessage);
-    }
-
     const { firstName, lastName, email, phoneNumber, password } = req.body;
-
-    if (req.body.id) {
-      const errorMessage = "ID field should not be present in the body";
-      throw Error(errorMessage);
-    }
 
     const userBody = {
       firstName,
@@ -93,17 +75,19 @@ const updateUserValid = (req, res, next) => {
       password,
     };
 
+    if (req.body.id) {
+      throw new Error("ID field should not be present in the body");
+    }
+
     const isValidBody = getDefinedFields(userBody);
 
     if (isObjEmpty(isValidBody)) {
-      const errorMessage =
-        "At least one field from the user model must be present";
-      throw Error(errorMessage);
+      throw new Error("At least one field from the user model must be present");
     }
 
     res.data = isValidBody;
-  } catch (error) {
-    res.error = error?.message ?? error;
+  } catch ({ message }) {
+    res.error = message;
   } finally {
     next();
   }

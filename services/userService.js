@@ -1,40 +1,52 @@
 import { userRepository } from "../repositories/userRepository.js";
 
-function responseHandler(reponse) {
-  if (!reponse) {
-    return null;
-  }
-  return reponse;
-}
-
 class UserService {
   createUser(user) {
     return userRepository.create(user);
   }
 
   search(search) {
-    const item = userRepository.getOne(search);
-    return responseHandler(item);
+    const user = userRepository.getOne(search);
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
   }
 
   getUsersList() {
-    const usersList = userRepository.getAll();
-    return responseHandler(usersList);
+    return userRepository.getAll();
   }
 
   getUserById(id) {
     const user = userRepository.getOne({ id });
-    return responseHandler(user);
+
+    if (!user) {
+      throw new Error("No user with such ID found in the database");
+    }
+
+    return user;
   }
 
   updateUserById(id, payload) {
     const updatedUser = userRepository.update(id, payload);
-    return responseHandler(updatedUser);
+
+    if (!updatedUser) {
+      throw new Error("Something went wrong updating the user");
+    }
+
+    return updatedUser;
   }
 
   deleteUserById(id) {
     const deletedUser = userRepository.delete(id);
-    return responseHandler(deletedUser);
+
+    if (!deletedUser) {
+      throw new Error("Something went wrong deleting the user");
+    }
+
+    return deletedUser;
   }
 }
 

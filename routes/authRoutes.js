@@ -1,22 +1,36 @@
 import { Router } from "express";
-import { authService } from "../services/authService.js";
 import { responseMiddleware } from "../middlewares/response.middleware.js";
+import { authService } from "../services/authService.js";
 
 const router = Router();
 
 router.post(
   "/login",
-  (req, res, next) => {
+  async (req, res, next) => {
     try {
-      // TODO: Implement login action (get the user if it exist with entered credentials)
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        throw new Error("Missing required fields");
+      }
+
+      const user = await authService.login({ email });
+
+      const isPasswordCorrect = user.password === password;
+
+      if (!isPasswordCorrect) {
+        throw new Error("Wrong password");
+      }
+
+      const data = user;
       res.data = data;
-    } catch (err) {
-      res.err = err;
+    } catch ({ message }) {
+      res.error = message;
     } finally {
       next();
     }
   },
-  responseMiddleware
+  responseMiddleware,
 );
 
 export { router };

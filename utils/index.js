@@ -86,20 +86,12 @@ const setFighterHealth = (health) => {
   return health;
 };
 
-const responseHandler = (response) => {
-  if (!response) {
-    return null;
-  }
-  return response;
-};
-
 export {
   getDefinedFields,
   getNonExistingFields,
   hasAllowedDomain,
   hasNoEmptyStringValues,
   isObjEmpty,
-  responseHandler,
   setFighterHealth,
   verifyFighterDefense,
   verifyFighterHealth,
